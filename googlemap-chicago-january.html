@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+      #map {
+        height: 400px;
+        width: 100%;
+       }
+    </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  </head>
+  <body style="background-color:powderblue;">
+    <h1 align="center">Crime OIJVoidance</h1>
+    <h2> </h2>
+
+    <h3><i>City of Chicago</i></h3>
+    <div id="map"></div>
+      <style>
+        /* Always set the map height explicitly to define the size of the div
+        * element that contains the map. */
+        #map
+        {
+          height: 100%;
+        }
+      /* Optional: Makes the sample page fill the window. */
+        html, body
+        {
+          height: 100%;
+          margin: 0;
+          padding: 0;
+        }
+        </style>
+
+    <script>
+      function initMap() {
+        // Setup map
+
+        var chicago = {lat:41.8781, lng:  -87.6298};
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 11,
+          center: chicago
+        });
+
+        // Get the JSON data and populate loc_data, which contains entries of {lat: x, lng: y}
+
+        $.getJSON("https://data.cityofchicago.org/api/views/vqzp-tuc8/rows.json?accessType=DOWNLOAD",
+          function(json)
+          {
+            var loc_data = [];
+
+            $.each( json['data'],
+              function(index, val)
+              {
+                loc_data.push({lat: parseFloat(val[12][1]), lng: parseFloat(val[12][2])});
+              }
+            );
+
+            // Put loc_data into an array of markers, and create their objects
+
+            var marker = []; // Array of markers
+            for(var i in loc_data)
+            {
+              // Create a marker
+              marker[i] = new google.maps.Marker({
+                position: loc_data[i],
+                map: map
+              });
+            }
+          });
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBUP-gQnqd7vJDXTFdfdKnQsWzpzF47ZV0&callback=initMap">
+    </script>
+  </body>
+</html>
