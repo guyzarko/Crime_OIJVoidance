@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-<head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -14,21 +13,27 @@
       line-height: 1.8;
       color: #f5f6f7;
   }
+  h1{
+    color: #000000;
+  }
+  h2{
+    color: #000000;
+  }
   p {font-size: 16px;}
   .margin {margin-bottom: 45px;}
-  .bg-1 { 
+  .bg-1 {
       background-color: #1abc9c; /* Green */
       color: #ffffff;
   }
-  .bg-2 { 
+  .bg-2 {
       background-color: #474e5d; /* Dark Blue */
       color: #ffffff;
   }
-  .bg-3 { 
+  .bg-3 {
       background-color: #ffffff; /* White */
       color: #555555;
   }
-  .bg-4 { 
+  .bg-4 {
       background-color: #2f2f2f; /* Black Gray */
       color: #fff;
   }
@@ -64,8 +69,8 @@
       border-color: #f1f1f1;
   }
   .carousel-inner img {
-      
-       /* make all photos black and white */ 
+
+       /* make all photos black and white */
       width: 100%; /* Set width to 100% */
       margin: auto;
   }
@@ -76,7 +81,7 @@
     .carousel-caption {
       display: none; /* Hide the carousel text when the screen is less than 600 pixels wide */
     }
-  }  
+  }
   </style>
 </head>
 <body>
@@ -87,14 +92,13 @@
        }
     </style>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-  </head>
   <nav class="navbar navbar-default">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
-        <span class="icon-bar"></span>                        
+        <span class="icon-bar"></span>
       </button>
       <a class="navbar-brand" href="#">Crime in the City of Chicago</a>
     </div>
@@ -109,7 +113,7 @@
     </div>
   </div>
 </nav>
-  
+
     <div id="map"></div>
       <style>
         /* Always set the map height explicitly to define the size of the div
@@ -128,6 +132,16 @@
         </style>
 
     <script>
+    function AddInfoWindow(marker,message) // Funciton closure. Needed to prevent loop later from only referencing the last index.
+    {
+        var infowindow = new google.maps.InfoWindow({ content: message });
+
+        google.maps.event.addListener(marker, 'click', function() {
+          infowindow.open(marker.get('map'), marker);
+        });
+
+    }
+
       function initMap() {
         // Setup map
 
@@ -143,24 +157,44 @@
           function(json)
           {
             var loc_data = [];
+            var loc_prim = [];
+            var loc_desc = [];
 
             $.each( json['data'],
               function(index, val)
               {
                 loc_data.push({lat: parseFloat(val[12][1]), lng: parseFloat(val[12][2])});
+                loc_prim.push(val[9]);
+                loc_desc.push(val[10]);
               }
             );
 
             // Put loc_data into an array of markers, and create their objects
 
             var marker = []; // Array of markers
+            var infowindow = []; // Info window for each marker for description
+            var contentString = ''; // Temp storage
             for(var i in loc_data)
             {
               // Create a marker
-              marker[i] = new google.maps.Marker({
+              marker.push(new google.maps.Marker({
                 position: loc_data[i],
                 map: map
-              });
+              }));
+
+              contentString = '<div>'+
+                '<h1 id="primary" class="firstHeading">' + loc_prim[i] + '</h1>' +
+                '<div>' +
+                '<h2 id="secondary" class="secondHeading">' + loc_desc[i] + '</h2>' +
+                '</div>' +
+                '</div>';
+
+              // Create the InfoWindow for that marker
+              infowindow.push(new google.maps.InfoWindow({
+                content: contentString
+              }));
+
+              AddInfoWindow(marker[i], contentString);
             }
           });
       }
